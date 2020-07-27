@@ -18,19 +18,28 @@ function App() {
       const { artista, cancion } = busquedaletra;
       const url = `https://api.lyrics.ovh/v1/${artista}/${cancion}`;
       const url2 = `https://www.theaudiodb.com/api/v1/json/1/search.php?s=${artista}`;
-
-      const [letra, informacion] = await Promise.all([
-        axios(url),
-        axios(url2)
-      ]);
-
-      guardarLetra(letra.data.lyrics);
-      guardarInfo(informacion.data.artists[0]);
-
-      // guardarLetra(resultado.data.lyrics);
+      //permite realizar ambos request al tiempo
+      axios.all([
+        axios.get(url),
+        axios.get(url2)
+      ])
+      //Actualizamos los states
+        .then(response => {
+          guardarLetra(response[0].data.lyrics);
+          guardarInfo(response[1].data.artists[0]);
+        })
+      //
+        .catch(err => {
+          /*Este lo use moviendo el estado del error al app.js en lugar de tenerlo en el formulario
+          setError(true);
+          setErrorText("No se encontro información");
+          */
+          setLetra("");
+          setInfo([]);
+        })
     }
     consultarApiLetra();
-  }, [busquedaletra, info]);
+  }, [busquedaletra]);
 
   return (
       <Fragment>
